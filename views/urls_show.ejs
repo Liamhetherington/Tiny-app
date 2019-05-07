@@ -10,11 +10,13 @@
 </head>
 <body style="font-size:20px; padding:50px;">
 
-<h2> Table of URLs </h2>
-  <ul>
-    <% for (url in urls) { %>
-    <li><%= url %> - <%= urls[url]  %></li>
-    <% }; %>
+  <h2>Shortened URL: </h2>
+
+
+    <p><%= "Long URL: " + longURL %></p>
+    <p><%= "Shortened URL: " + shortURL %></p>
+
+
   </ul>
   <a href='#'> Shorten a URL </a>
 </body>
