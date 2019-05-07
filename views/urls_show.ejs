@@ -9,15 +9,19 @@
   <title>TinyApp</title>
 </head>
 <body style="font-size:20px; padding:50px;">
+  <% include partials/_header %>
 
   <h2>Shortened URL: </h2>
 
+    <a href='#'> Create New TinyURL </a>
+
+    <h3> My URLs </h3>
 
     <p><%= "Long URL: " + longURL %></p>
     <p><%= "Shortened URL: " + shortURL %></p>
 
 
   </ul>
-  <a href='#'> Shorten a URL </a>
+
 </body>
 </html>
