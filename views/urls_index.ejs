@@ -11,12 +11,21 @@
 <body style="font-size:20px; padding:50px;">
   <% include partials/_header %>
 
-<h2> Table of URLs </h2>
-  <ul>
-    <% for (url in urls) { %>
-    <li><%= url %> - <%= urls[url]  %></li>
-    <% }; %>
-  </ul>
-  <a href='#'> Shorten URL </a>
+  <h2> Table of URLs </h2>
+
+    <ul>
+      <% for (url in urls) { %>
+      <li>
+        <%= url %> - <%= urls[url]  %>
+        <form method="POST" action=<%= "/urls/" + url + "/delete"%>>
+        <input value="destroy" type="submit">
+        </form>
+      </li>
+      <% }; %>
+
+
+    </ul>
+    <a href=http://localhost:8080/urls/new> Shorten URL </a>
+
 </body>
 </html>
