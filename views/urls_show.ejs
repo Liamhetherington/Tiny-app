@@ -16,6 +16,10 @@
     <a href='#'> Create New TinyURL </a>
 
     <h3> My URLs </h3>
+    <form method="POST" action=<%= "/urls/" + url%>>
+      <input type= "text" value="<%= longURL %>" name="edit">
+      <button type="submit">Submit</button>
+    </form>
 
     <p><%= "Long URL: " + longURL %></p>
     <p><%= "Shortened URL: " + shortURL %></p>
@@ -25,3 +29,4 @@
 
 </body>
 </html>
+
