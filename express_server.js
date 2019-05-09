@@ -63,20 +63,35 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  let currentUser = null;
+  if (users[req.cookies.user_id]) {
+    currentUser = users[req.cookies.user_id].email
+  }
   let templateVars = { urls: urlDatabase,
-                      username: req.cookies["username"]};
+                      user: currentUser,
+                      };
+        console.log(templateVars);
+        console.log(req.cookies.user_id);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = {username: req.cookies["username"]}
+    let currentUser = null;
+  if (users[req.cookies.user_id]) {
+    currentUser = users[req.cookies.user_id].email
+  }
+  let templateVars = {user: currentUser}
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+    let currentUser = null;
+  if (users[req.cookies.user_id]) {
+    currentUser = users[req.cookies.user_id].email
+  }
   let shortenedurl = req.params.shortURL;
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[shortenedurl],
-                      username: req.cookies["username"]};
+                      user: currentUser};
   res.render("urls_show", templateVars);
 });
 
@@ -96,16 +111,17 @@ app.post("/register", (req, res) => {
   let id = generateRandomString();
   if  (email === "" || password === ""){
     res.status(400).send("Please input Email and Password");
+    return;
   } else if (existingEmail(email)) {
     res.status(400).send("Email already exists");
-  }
-  else {
+    return;
+  } else {
       users[id] = {
       "id": id,
       "email": email,
       "password": password
-      }
     }
+  }
   res.cookie("user_id", id)
   // console.log(users);
   res.redirect(`/urls`);
@@ -122,12 +138,12 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("user_id", users[req.cookies.user_id]);
   res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body.username);
+  res.clearCookie("user_id", users[req.cookies.user_id]);
   res.redirect(`/urls`);
 });
 

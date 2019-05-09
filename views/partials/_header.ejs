@@ -1,16 +1,16 @@
 <h1> Tiny App </h1>
 
 
-  <% if (username) { %>
-    <h3>Logged in as <%= username %> !</h3>
+  <% if (user) { %>
+    <h3>Logged in as <%= user %> !</h3>
       <form method="POST" action="/logout">
         <button name="logout" class="btn btn-secondary">Would you like to Logout?</button>
       </form>
       <% } else { %>
-        <form method="POST" action="/login">
-          <input type="text" name="username">
+       <!--  <form method="POST" action="/login">
+          <input type="text" name="user">
           <button tpye="submit" class="btn btn-primary">What is your Username?</button>
-        </form>
+        </form> -->
       <% } %>
 
 
