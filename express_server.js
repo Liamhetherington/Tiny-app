@@ -28,6 +28,15 @@ function existingEmail(email) {
   return false;
 }
 
+function getUser(email, password) {
+  for (let user of Object.values(users)) {
+    if(user.email === email && user.password === password) {
+      return user
+    }
+  }
+  return null;
+}
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -105,6 +114,10 @@ app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
+app.get("/login", (req, res) => {
+  res.render("urls_loginpage");
+});
+
 app.post("/register", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
@@ -138,13 +151,18 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", users[req.cookies.user_id]);
-  res.redirect(`/urls`);
+  let username = req.body.email;
+  let password = req.body.password;
+  let user = getUser(username, password)
+  if(user) {
+    res.cookie("user_id", user.id)
+     res.redirect(`/urls`);
+  }
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id", users[req.cookies.user_id]);
-  res.redirect(`/urls`);
+  res.clearCookie("user_id");
+  res.redirect(`/login`);
 });
 
 app.post("/urls", (req, res) => {
