@@ -19,7 +19,7 @@
 
         <%= url %> - <%= urls[url]  %> <a href=http://localhost:8080/urls/<%= url %>>Edit</a>
         <form method="POST" action=<%= "/urls/" + url + "/delete"%>>
-        <input value="Delete" type="submit">
+        <input value="Delete" type="submit" class="btn btn-primary">
         </form>
       </li>
       <% }; %>

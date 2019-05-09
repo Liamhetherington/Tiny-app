@@ -4,12 +4,12 @@
   <% if (username) { %>
     <h3>Logged in as <%= username %> !</h3>
       <form method="POST" action="/logout">
-        <button name="logout">Logout</button>
+        <button name="logout" class="btn btn-secondary">Would you like to Logout?</button>
       </form>
       <% } else { %>
         <form method="POST" action="/login">
           <input type="text" name="username">
-          <button tpye="submit">Submit</button>
+          <button tpye="submit" class="btn btn-primary">What is your Username?</button>
         </form>
       <% } %>
 
