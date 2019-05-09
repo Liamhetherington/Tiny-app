@@ -3,8 +3,9 @@ var app = express();
 var PORT = 8080; // default port 8080
 const crypto = require("crypto");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
-
+app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser())
 
@@ -13,11 +14,18 @@ function generateRandomString() {
   return crypto.randomBytes(6).toString("hex").substring(0, 6);
 }
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-
 function addedtoDatabase (shortURL, longURL) {
   urlDatabase[shortURL] = longURL;
+}
+
+function existingEmail(email) {
+  for (let userId in users) {
+    let userEmail = users[userId].email;
+    if (userEmail === email){
+      return true;
+    }
+  }
+  return false;
 }
 
 const users = {
@@ -87,8 +95,11 @@ app.post("/register", (req, res) => {
   let password = req.body.password;
   let id = generateRandomString();
   if  (email === "" || password === ""){
-    res.send("400 Error");
-  } else {
+    res.status(400).send("Please input Email and Password");
+  } else if (existingEmail(email)) {
+    res.status(400).send("Email already exists");
+  }
+  else {
       users[id] = {
       "id": id,
       "email": email,
@@ -96,7 +107,7 @@ app.post("/register", (req, res) => {
       }
     }
   res.cookie("user_id", id)
-  console.log(users);
+  // console.log(users);
   res.redirect(`/urls`);
 });
 
@@ -124,7 +135,7 @@ app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
   addedtoDatabase(shortURL, longURL);
-  console.log(urlDatabase);  // Log the POST request body to the console
+  // console.log(urlDatabase);  // Log the POST request body to the console
   // res.send("Ok");         // Respond with 'Ok' (we will replace this)
   res.redirect(`/urls/${shortURL}`);
 });
