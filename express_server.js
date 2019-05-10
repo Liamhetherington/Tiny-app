@@ -157,6 +157,8 @@ app.post("/login", (req, res) => {
   if(user) {
     res.cookie("user_id", user.id)
      res.redirect(`/urls`);
+  } else {
+    res.status(403).send("Email cannot be found")
   }
 });
 
