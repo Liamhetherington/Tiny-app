@@ -4,6 +4,10 @@ var PORT = 8080; // default port 8080
 const crypto = require("crypto");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
+
+
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -45,7 +49,7 @@ function existingEmail(email) {
 
 function getUser(email, password) {
   for (let key of Object.values(user)) {
-    if(key.email === email && key.password === password) {
+    if(key.email === email && bcrypt.compare(password, [key].password)) {
       return key;
     }
   }
@@ -159,8 +163,9 @@ app.post("/register", (req, res) => {
       user[id] = {
       "id": id,
       "email": email,
-      "password": password
+      "password": bcrypt.hashSync(password, 10)
     }
+    console.log(user);
   }
   res.cookie("user_id", id)
   // console.log(users);
