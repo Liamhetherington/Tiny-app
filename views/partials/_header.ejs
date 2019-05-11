@@ -2,9 +2,9 @@
 
 
   <% if (user) { %>
-    <h3>Logged in as <%= user %> !</h3>
+    <h3>Logged in as <%= user.id %> !</h3>
       <form method="POST" action="/logout">
-        <button name="logout" class="btn btn-secondary">Would you like to Logout?</button>
+        <button name="logout" class="btn btn-secondary">Logout</button>
       </form>
       <% } else { %>
         <a href=http://localhost:8080/register>Register</a>
