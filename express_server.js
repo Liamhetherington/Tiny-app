@@ -54,10 +54,12 @@ function getUser(email, password) {
   for (let key of Object.values(user)) {
     if(key.email === email && bcrypt.compare(password, [key].password)) {
       return key;
+      console.log(key)
     }
   }
   return null;
 }
+
 
 const user = {
   "userRandomID": {
@@ -181,15 +183,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => { //BROKEN WILL FIX LATER
-  // console.log(urlDatabase);
-  // let newUrlDatabase = req.params.shortURL;
+  console.log(urlDatabase);
+  let newUrlDatabase = req.params.shortURL;
 
-  // let templateVars = {
-  //                     [req.params.shortURL]: { longURL: req.body.edit,
-  //                                       userID: generateRandomString()
-  //                     };
-  //                   };
-  // console.log(urlDatabase);
+  let templateVars = {
+                      [req.params.shortURL]: { longURL: req.body.edit,
+                                        userID: generateRandomString()
+                      }
+                    };
+  console.log(urlDatabase);
 
   res.redirect(`/urls`);
   // console.log(urlDatabase[req.params.shortURL]);
@@ -198,12 +200,19 @@ app.post("/urls/:shortURL", (req, res) => { //BROKEN WILL FIX LATER
 app.post("/login", (req, res) => {
   let username = req.body.email;
   let password = req.body.password;
-  let LoggedInUser = getUser(username, password)
-  if(user) {
-    req.session.user_id = LoggedInUser.id;
-     res.redirect(`/urls`);
-  } else {
-    res.status(403).send("Email cannot be found");
+  let loggedInUser = null;
+  for (id in user) {
+    const current = user[id]
+    if (bcrypt.compareSync(password, current.password)) {
+      loggedInUser = current
+      break
+      console.log("logged in user: ", loggedInUser)
+    }
+  }
+
+  if (!loggedInUser) {
+    res.send('Username or password incorrect. Please try again.')
+    return
   }
 });
 
