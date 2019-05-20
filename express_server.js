@@ -16,7 +16,6 @@ app.use(cookieSession( {
   keys: ['keeererereregrewgwe']
 }));
 
-console.log();
 
 function generateRandomString() {
   return crypto.randomBytes(6).toString("hex").substring(0, 6);
@@ -34,6 +33,7 @@ const urlsForUser = (id) => {
  let knownURLs = {};
  for (let key in urlDatabase) {
   if (urlDatabase[key].userID === id) {
+    console.log("url data base id: ", urlDatabase[key].userID)
     knownURLs[key] = urlDatabase[key];
   }
  }
@@ -50,16 +50,23 @@ function existingEmail(email) {
   return false;
 }
 
-function getUser(email, password) {
+function getUser(email) {
   for (let key of Object.values(user)) {
-    if(key.email === email && bcrypt.compare(password, [key].password)) {
+    if(key.email === email) {
       return key;
-      console.log(key)
     }
   }
   return null;
 }
 
+function validUser(userCurrent) {
+  for (let current in user) {
+    if(current === userCurrent) {
+      return true;
+    }
+    return null;
+  }
+}
 
 const user = {
   "userRandomID": {
@@ -70,7 +77,7 @@ const user = {
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "1"
   }
 }
 
@@ -86,35 +93,37 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
 app.get("/urls/register", (req, res) => {
   res.render("urls_register");
 });
 
+app.get(`/`, (req, res) => {
+  res.redirect(`/urls`);
+});
 
 app.get("/urls", (req, res) => {
-  let currentUser = null;
-  if (user[req.session.user_id]) {
-    currentUser = user[req.session.user_id].id;
-  }
-  let userURLs = urlsForUser(currentUser);
-  let templateVars = { urls: userURLs,
-                      user: user[req.session["user_id"]],
-
-                      };
-        // console.log(templateVars);
-         // console.log(urlDatabase);
-  if (!currentUser) {
-    res.redirect(`/login`);
+  const currentUser = user[req.session.user_id];
+  if(currentUser) {
+    let userURLs = {};
+    for (let URL in urlDatabase) {
+      console.log("newURL ", URL)
+      console.log('urlDatabase ', urlDatabase)
+      if (urlDatabase[URL].userID === req.session.user_id) {
+        userURLs[URL] = urlDatabase[URL];
+      }
+    }
+    let templateVars = { urls: userURLs,
+                       user: currentUser.email
+    };
+    res.render("urls_index", templateVars);
   } else {
-  res.render("urls_index", templateVars);
+    res.status(401).send('Error 401: Please <a href="/login"> Login. </a>');
   }
 });
 
 app.get("/urls/new", (req, res) => {
-    let currentUser = null;
-  if (user[req.session.user_id]) {
-    currentUser = user[req.session.user_id].id
-  }
+  const currentUser = user[req.session.user_id];
   let templateVars = {user: currentUser}
   if (currentUser) {
   res.render("urls_new", templateVars);
@@ -124,17 +133,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-   let shortenedurl = req.params.shortURL;
-   let templateVars = { shortURL: req.params.shortURL,
-                      longURL: urlDatabase[shortenedurl].longURL,
-                      user: user,
-                      urls: urlDatabase,
-                      url: req.params.shortURL}
-    let currentUser = null;
-  if (urlDatabase[req.params.shortURL].userID === req.session["user_id"]){
-    res.render("urls_show", templateVars);
+  if (!(urlDatabase[req.params.shortURL])) {
+    res.status(404).send('Error 404: Page not found. <a href="/"> Return to home page.</a>');
+  } else if (!req.session.user_id) {
+    res.status(401).send('Error 401: Please <a href="/login"> Login. </a>');
+  } else if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
+    res.status(403).send('Error 403: This link belongs to another user. <a href="/" Return to home page.</a>');
   } else {
-    res.status(403).send("Not logged in");
+
+    let templateVars = {
+      url: req.params.shortURL,
+      long: urlDatabase[req.params.shortURL].longURL
+    }
+    res.render('urls_show', templateVars);
   }
 });
 
@@ -168,10 +179,9 @@ app.post("/register", (req, res) => {
       "email": email,
       "password": bcrypt.hashSync(password, 10)
     }
-    console.log(user);
+
   }
-  req.session.user_id = "user_id";
-  // console.log(users);
+  req.session.user_id = id;
   res.redirect(`/urls`);
 });
 
@@ -182,50 +192,51 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
-app.post("/urls/:shortURL", (req, res) => { //BROKEN WILL FIX LATER
-  console.log(urlDatabase);
+app.post("/urls/:shortURL", (req, res) => {
   let newUrlDatabase = req.params.shortURL;
 
   let templateVars = {
                       [req.params.shortURL]: { longURL: req.body.edit,
-                                        userID: generateRandomString()
+                                                userID: generateRandomString()
                       }
                     };
-  console.log(urlDatabase);
 
   res.redirect(`/urls`);
-  // console.log(urlDatabase[req.params.shortURL]);
 });
 
 app.post("/login", (req, res) => {
-  let username = req.body.email;
+  let email = req.body.email;
   let password = req.body.password;
-  let loggedInUser = null;
-  for (id in user) {
-    const current = user[id]
-    if (bcrypt.compareSync(password, current.password)) {
-      loggedInUser = current
-      break
-      console.log("logged in user: ", loggedInUser)
-    }
-  }
 
+  let loggedInUser = null;
+  const current = getUser(email)
+
+    if (current && bcrypt.compareSync(password, current.password)) {
+      loggedInUser = current
+  }
   if (!loggedInUser) {
     res.send('Username or password incorrect. Please try again.')
     return
   }
+
+  req.session.user_id = loggedInUser.id
+
+  res.redirect('/urls')
+
 });
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect(`/urls`);
+  res.redirect(`/login`);
 });
 
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
+  console.log("Random strong ", shortURL)
   let userID = req.session.user_id;
   addedtoDatabase(shortURL, longURL, userID);
+  console.log("Hyello")
 
   // console.log(urlDatabase);  // Log the POST request body to the console
   // res.send("Ok");         // Respond with 'Ok' (we will replace this)
