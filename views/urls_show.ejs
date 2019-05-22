@@ -10,24 +10,15 @@
 </head>
 <body style="font-size:20px; padding:50px;">
   <% include partials/_header %>
-
-
-
     <a href=http://localhost:8080/urls/new> Create New TinyURL </a>
-
     <h3> My URLs </h3>
     <form method="POST" action=<%= "/urls/" + shortURL %>>
-      <input type= "text" value="<%= longURL %>" name="edit">
+      <input type= "text" value="<%= longURL %>" name="longURL">
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-
-
     <p><%= "Long URL: " +  longURL %></p>
     <p><%= "Shortened URL: " +  shortURL %></p>
-
-
   </ul>
-
 </body>
 </html>
 
